@@ -2912,28 +2912,30 @@ abstract class _MarkdownExtra_TmpImpl extends \Michelf\Markdown {
 			$is_p = !preg_match('/^B\x1A[0-9]+B|^C\x1A[0-9]+C$/', $value);
 			
 			if ($is_p) {
-                                # Roberto Huelga Edit to make paragraphs with class
-                                $matches = array();
+				# Roberto Huelga Edit to make paragraphs with class
+				$matches = array();
 
-                                $classes = '';
-                                $id = '';
-                                if(preg_match( '/\A\{:(.*)\}/', $value, $matches)) {
-					$value = ltrim(substr($value, strlen($matches[0])));
-                                        $matches = explode(' ', $matches[1]);
-                                        $cs = array();
+				$classes = '';
+				$id = '';
+				if(preg_match( '/(^|\s{2,})\{:(.+)\}\s*\z/m', $value, $matches)) {
+					$value = rtrim(substr($value, 0, -1 * strlen($matches[0])));
+					$matches = explode(' ', trim($matches[2]));
+					$cs = array();
 
-                                        foreach( $matches as $m ){
-                                                if( $m[0] == '.') {
-                                                        $cs[] = substr($m, 1);
-                                                }
-                                                if( $m[0] == '#') {
-                                                        $id = ' id="' . substr($m, 1) . '"';
-                                                }
-                                        }
-                                        if(count($cs) > 0) {
-                                                $classes = ' class="' . implode(' ', $cs) . '"';
-                                        }
-                                }
+					foreach( $matches as $m ){
+						switch($m[0]) {
+						case '.':
+							$cs[] = substr($m, 1);
+							break;
+						case '#':
+							$id = ' id="' . substr($m, 1) . '"';
+							break;
+						}
+					}
+					if(count($cs) > 0) {
+						$classes = ' class="' . implode(' ', $cs) . '"';
+					}
+				}
 				$value = "<p$id$classes>$value</p>";
 			}
 			$grafs[$key] = $value;
